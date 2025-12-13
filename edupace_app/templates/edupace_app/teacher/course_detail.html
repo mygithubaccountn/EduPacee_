@@ -42,29 +42,59 @@
         </div>
     </div>
     
+    <!-- Graph Visualization -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-12">
+            {% include 'edupace_app/graph_visualization.html' with graph_data=graph_data|default:"{}"|safe %}
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Program Outcomes</h5>
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Assessments</h5>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:add_assessment' course.id %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-plus-circle"></i> Add
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="card-body">
-                    {% if program_outcomes %}
+                    {% if assessments %}
                     <ul class="list-group">
-                        {% for po in program_outcomes %}
-                        <li class="list-group-item">
-                            <strong>{{ po.code }}:</strong> {{ po.description }}
+                        {% for assessment in assessments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ assessment.name }}</strong><br>
+                                <small class="text-muted">Weight: {{ assessment.weight_in_course|floatformat:0 }}%</small>
+                            </div>
+                            {% if can_edit %}
+                            <div>
+                                <a href="{% url 'edupace_app:edit_assessment' assessment.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'edupace_app:delete_assessment' assessment.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                            {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-muted">No program outcomes defined for this course.</p>
+                    <p class="text-muted">No assessments defined yet.</p>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:add_assessment' course.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle"></i> Add Assessment
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
         </div>
         
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-list-task"></i> Learning Outcomes</h5>
@@ -80,7 +110,7 @@
                         {% for lo in learning_outcomes %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>{{ lo.code }}:</strong> {{ lo.description }}
+                                <strong>{{ lo.code }}:</strong> {{ lo.description|truncatewords:10 }}
                             </div>
                             {% if can_edit %}
                             <div>
@@ -98,10 +128,72 @@
                     {% else %}
                     <p class="text-muted">No learning outcomes defined yet.</p>
                     {% if can_edit %}
-                    <a href="{% url 'edupace_app:add_learning_outcome' course.id %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Add First Learning Outcome
+                    <a href="{% url 'edupace_app:add_learning_outcome' course.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle"></i> Add Learning Outcome
                     </a>
                     {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> Connections</h5>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:connect_assessment_to_lo' course.id %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-plus-circle"></i> Connect
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if assessment_to_lo %}
+                    <ul class="list-group">
+                        {% for conn in assessment_to_lo %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ conn.assessment.name }}</strong> → <strong>{{ conn.learning_outcome.code }}</strong><br>
+                                <small class="text-muted">Weight: {{ conn.weight|floatformat:2 }}</small>
+                            </div>
+                            {% if can_edit %}
+                            <a href="{% url 'edupace_app:delete_assessment_to_lo' conn.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No connections yet.</p>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:connect_assessment_to_lo' course.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-link-45deg"></i> Connect Assessment to LO
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Assessment Grades</h5>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:add_assessment_grade' course.id %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-plus-circle"></i> Add Grade
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Enter individual assessment grades for students. These will be used to calculate Learning Outcome scores.</p>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:add_assessment_grade' course.id %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Assessment Grade
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -112,9 +204,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Grades</h5>
+                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Course Grades</h5>
                     {% if can_edit %}
                     <div>
+                        <a href="{% url 'edupace_app:add_grade' course.id %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-plus-circle"></i> Add Grade
+                        </a>
                         <a href="{% url 'edupace_app:upload_grades' course.id %}" class="btn btn-sm btn-primary">
                             <i class="bi bi-upload"></i> Upload Excel
                         </a>
@@ -155,8 +250,11 @@
                     {% else %}
                     <p class="text-muted">No grades uploaded yet.</p>
                     {% if can_edit %}
+                    <a href="{% url 'edupace_app:add_grade' course.id %}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Add Grade
+                    </a>
                     <a href="{% url 'edupace_app:upload_grades' course.id %}" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Upload Grades
+                        <i class="bi bi-upload"></i> Upload Excel
                     </a>
                     {% endif %}
                     {% endif %}

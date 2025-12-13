@@ -74,8 +74,8 @@ class AcademicBoard(models.Model):
 
 
 class ProgramOutcome(models.Model):
-    """Program outcomes for courses"""
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='program_outcomes')
+    """Program outcomes defined by Academic Board"""
+    academic_board = models.ForeignKey(AcademicBoard, on_delete=models.CASCADE, related_name='program_outcomes')
     code = models.CharField(max_length=20, help_text="PO code (e.g., PO1, PO2)")
     description = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_program_outcomes')
@@ -83,13 +83,13 @@ class ProgramOutcome(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        unique_together = ['course', 'code']
-        ordering = ['course', 'code']
+        unique_together = ['academic_board', 'code']
+        ordering = ['academic_board', 'code']
         verbose_name = "Program Outcome"
         verbose_name_plural = "Program Outcomes"
     
     def __str__(self):
-        return f"{self.course.code} - {self.code}"
+        return f"{self.code}"
 
 
 class LearningOutcome(models.Model):
@@ -152,3 +152,87 @@ class Grade(models.Model):
     
     def __str__(self):
         return f"{self.student.student_id} - {self.course.code} - {self.grade}"
+
+
+class Assessment(models.Model):
+    """Assessment model for course assessments (Midterm, Project, Final, etc.)"""
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='assessments')
+    name = models.CharField(max_length=100, help_text="Assessment name (e.g., Midterm, Project, Final)")
+    weight_in_course = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+        help_text="Weight of this assessment in the course (0.0 to 1.0)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['course', 'name']
+        ordering = ['course', 'name']
+        verbose_name = "Assessment"
+        verbose_name_plural = "Assessments"
+    
+    def __str__(self):
+        return f"{self.course.code} - {self.name}"
+
+
+class AssessmentGrade(models.Model):
+    """Grade for a specific assessment and student"""
+    assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='grades')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='assessment_grades')
+    grade = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Grade as a percentage (0-100)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['assessment', 'student']
+        ordering = ['assessment', 'student']
+        verbose_name = "Assessment Grade"
+        verbose_name_plural = "Assessment Grades"
+    
+    def __str__(self):
+        return f"{self.student.student_id} - {self.assessment.name}: {self.grade}"
+
+
+class AssessmentToLO(models.Model):
+    """Weighted edge connecting Assessment to Learning Outcome"""
+    assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='lo_connections')
+    learning_outcome = models.ForeignKey(LearningOutcome, on_delete=models.CASCADE, related_name='assessment_connections')
+    weight = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        help_text="Weight of this assessment in calculating the learning outcome score"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['assessment', 'learning_outcome']
+        ordering = ['assessment', 'learning_outcome']
+        verbose_name = "Assessment to Learning Outcome"
+        verbose_name_plural = "Assessment to Learning Outcomes"
+    
+    def __str__(self):
+        return f"{self.assessment.name} → {self.learning_outcome.code} ({self.weight})"
+
+
+class LOToPO(models.Model):
+    """Weighted edge connecting Learning Outcome to Program Outcome"""
+    learning_outcome = models.ForeignKey(LearningOutcome, on_delete=models.CASCADE, related_name='po_connections')
+    program_outcome = models.ForeignKey(ProgramOutcome, on_delete=models.CASCADE, related_name='lo_connections')
+    weight = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        help_text="Weight of this learning outcome in calculating the program outcome score"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['learning_outcome', 'program_outcome']
+        ordering = ['learning_outcome', 'program_outcome']
+        verbose_name = "Learning Outcome to Program Outcome"
+        verbose_name_plural = "Learning Outcome to Program Outcomes"
+    
+    def __str__(self):
+        return f"{self.learning_outcome.code} → {self.program_outcome.code} ({self.weight})"

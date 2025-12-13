@@ -1,32 +1,30 @@
 {% extends 'edupace_app/base.html' %}
 
-{% block title %}Delete Program Outcome - {{ program_outcome.code }}{% endblock %}
+{% block title %}Delete Connection{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-danger text-white">
                     <h5 class="mb-0">
-                        <i class="bi bi-exclamation-triangle"></i> Delete Program Outcome
+                        <i class="bi bi-trash"></i> Delete Connection
                     </h5>
                 </div>
                 <div class="card-body">
-                    <p>Are you sure you want to delete the following program outcome?</p>
-                    <div class="alert alert-info">
-                        <strong>{{ program_outcome.code }}:</strong> {{ program_outcome.description }}
-                    </div>
-                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                    <p class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Are you sure you want to delete the connection between <strong>{{ connection.learning_outcome.code }}</strong> and <strong>{{ connection.program_outcome.code }}</strong>?
+                    </p>
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'edupace_app:academic_board_dashboard' %}" class="btn btn-secondary">
+                            <a href="{% url 'edupace_app:academic_board_course_detail' course.id %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancel
                             </a>
                             <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Delete
+                                <i class="bi bi-trash"></i> Delete Connection
                             </button>
                         </div>
                     </form>

@@ -2,7 +2,8 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
-from .models import Teacher, Student, AcademicBoard
+from django.db.models import Q, Sum, Avg
+from .models import Teacher, Student, AcademicBoard, AssessmentGrade, AssessmentToLO, LOToPO
 
 
 def get_user_role(user):
@@ -231,4 +232,197 @@ def process_excel_grades(excel_file, course, semester='', academic_year='', crea
         
     except Exception as e:
         return False, f"Error processing Excel file: {str(e)}", []
+
+
+def calculate_lo_score(student, learning_outcome):
+    """
+    Calculate Learning Outcome score for a student.
+    Traverses AssessmentToLO edges with weights.
+    
+    Formula: LO_score = Σ(AssessmentGrade × weight) / Σ(weights)
+    """
+    # Get all assessment connections for this learning outcome
+    connections = AssessmentToLO.objects.filter(learning_outcome=learning_outcome)
+    
+    if not connections.exists():
+        return None
+    
+    total_weighted_score = 0.0
+    total_weight = 0.0
+    
+    for connection in connections:
+        # Get the student's grade for this assessment
+        try:
+            assessment_grade = AssessmentGrade.objects.get(
+                assessment=connection.assessment,
+                student=student
+            )
+            grade_value = assessment_grade.grade
+            weight = connection.weight
+            
+            total_weighted_score += grade_value * weight
+            total_weight += weight
+        except AssessmentGrade.DoesNotExist:
+            # Student doesn't have a grade for this assessment, skip it
+            continue
+    
+    if total_weight == 0:
+        return None
+    
+    return total_weighted_score / total_weight
+
+
+def calculate_po_score(student, program_outcome):
+    """
+    Calculate Program Outcome score for a student.
+    Traverses LOToPO edges with weights.
+    
+    Formula: PO_score = Σ(LO_score × weight) / Σ(weights)
+    """
+    # Get all LO connections for this program outcome
+    connections = LOToPO.objects.filter(program_outcome=program_outcome)
+    
+    if not connections.exists():
+        return None
+    
+    total_weighted_score = 0.0
+    total_weight = 0.0
+    
+    for connection in connections:
+        # Calculate the LO score for this student
+        lo_score = calculate_lo_score(student, connection.learning_outcome)
+        
+        if lo_score is not None:
+            weight = connection.weight
+            total_weighted_score += lo_score * weight
+            total_weight += weight
+    
+    if total_weight == 0:
+        return None
+    
+    return total_weighted_score / total_weight
+
+
+def get_course_graph_data(course, student=None):
+    """
+    Get graph data for a course visualization.
+    Returns nodes and edges for the graph.
+    
+    Args:
+        course: Course object
+        student: Optional Student object to include scores in the graph
+    
+    Returns:
+        dict with 'nodes' and 'edges' lists
+    """
+    nodes = []
+    edges = []
+    
+    # Add assessment nodes (green diamonds)
+    assessments = course.assessments.all()
+    for idx, assessment in enumerate(assessments):
+        node_data = {
+            'id': f'assessment_{assessment.id}',
+            'label': assessment.name,
+            'type': 'assessment',
+            'data': {
+                'weight': assessment.weight_in_course,
+                'assessment_id': assessment.id,
+            }
+        }
+        
+        # Add student grade if provided
+        if student:
+            try:
+                grade = AssessmentGrade.objects.get(assessment=assessment, student=student)
+                node_data['data']['grade'] = grade.grade
+                node_data['label'] = f"{assessment.name}\n{grade.grade:.1f}%"
+            except AssessmentGrade.DoesNotExist:
+                pass
+        
+        nodes.append(node_data)
+    
+    # Add learning outcome nodes (purple boxes)
+    learning_outcomes = course.learning_outcomes.all()
+    for idx, lo in enumerate(learning_outcomes):
+        node_data = {
+            'id': f'lo_{lo.id}',
+            'label': lo.code,
+            'type': 'learning_outcome',
+            'data': {
+                'description': lo.description,
+                'lo_id': lo.id,
+            }
+        }
+        
+        # Calculate and add LO score if student provided
+        if student:
+            lo_score = calculate_lo_score(student, lo)
+            if lo_score is not None:
+                node_data['data']['score'] = lo_score
+                node_data['label'] = f"{lo.code}\n{lo_score:.1f}%"
+        
+        nodes.append(node_data)
+    
+    # Add program outcome nodes (blue boxes)
+    # Get POs connected to this course's LOs
+    po_connections = LOToPO.objects.filter(learning_outcome__course=course).select_related('program_outcome')
+    pos = set()
+    for conn in po_connections:
+        pos.add(conn.program_outcome)
+    
+    for po in pos:
+        node_data = {
+            'id': f'po_{po.id}',
+            'label': po.code,
+            'type': 'program_outcome',
+            'data': {
+                'description': po.description,
+                'po_id': po.id,
+            }
+        }
+        
+        # Calculate and add PO score if student provided
+        if student:
+            po_score = calculate_po_score(student, po)
+            if po_score is not None:
+                node_data['data']['score'] = po_score
+                node_data['label'] = f"{po.code}\n{po_score:.1f}%"
+        
+        nodes.append(node_data)
+    
+    # Add edges: Assessment → Learning Outcome
+    assessment_to_lo = AssessmentToLO.objects.filter(
+        assessment__course=course
+    ).select_related('assessment', 'learning_outcome')
+    
+    for edge in assessment_to_lo:
+        edges.append({
+            'id': f'edge_assessment_{edge.assessment.id}_lo_{edge.learning_outcome.id}',
+            'source': f'assessment_{edge.assessment.id}',
+            'target': f'lo_{edge.learning_outcome.id}',
+            'type': 'assessment_to_lo',
+            'weight': edge.weight,
+            'label': f"{(edge.weight * 100):.0f}%",
+        })
+    
+    # Add edges: Learning Outcome → Program Outcome
+    lo_to_po = LOToPO.objects.filter(
+        learning_outcome__course=course
+    ).select_related('learning_outcome', 'program_outcome')
+    
+    for edge in lo_to_po:
+        edges.append({
+            'id': f'edge_lo_{edge.learning_outcome.id}_po_{edge.program_outcome.id}',
+            'source': f'lo_{edge.learning_outcome.id}',
+            'target': f'po_{edge.program_outcome.id}',
+            'type': 'lo_to_po',
+            'weight': edge.weight,
+            'label': f"{(edge.weight * 100):.0f}%",
+        })
+    
+    return {
+        'nodes': nodes,
+        'edges': edges,
+    }
 

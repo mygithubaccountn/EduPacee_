@@ -56,7 +56,7 @@
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-list-check"></i> Program Outcomes</h5>
                     {% if can_edit %}
-                    <a href="{% url 'edupace_app:add_program_outcome' course.id %}" class="btn btn-sm btn-light">
+                    <a href="{% url 'edupace_app:add_program_outcome' %}" class="btn btn-sm btn-light">
                         <i class="bi bi-plus-circle"></i> Add
                     </a>
                     {% endif %}
@@ -85,7 +85,7 @@
                     {% else %}
                     <p class="text-muted">No program outcomes defined yet.</p>
                     {% if can_edit %}
-                    <a href="{% url 'edupace_app:add_program_outcome' course.id %}" class="btn btn-primary">
+                    <a href="{% url 'edupace_app:add_program_outcome' %}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add First Program Outcome
                     </a>
                     {% endif %}
@@ -110,6 +110,55 @@
                     </ul>
                     {% else %}
                     <p class="text-muted">No learning outcomes defined yet. Teachers can add them.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graph Visualization -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include 'edupace_app/graph_visualization.html' with graph_data=graph_data|default:"{}"|safe %}
+        </div>
+    </div>
+    
+    <!-- LO to PO Connections -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> Learning Outcome to Program Outcome Connections</h5>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:connect_lo_to_po' course.id %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-plus-circle"></i> Connect
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if lo_to_po %}
+                    <ul class="list-group">
+                        {% for conn in lo_to_po %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ conn.learning_outcome.code }}</strong> → <strong>{{ conn.program_outcome.code }}</strong><br>
+                                <small class="text-muted">Weight: {{ conn.weight|floatformat:2 }}</small>
+                            </div>
+                            {% if can_edit %}
+                            <a href="{% url 'edupace_app:delete_lo_to_po' conn.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No connections between learning outcomes and program outcomes yet.</p>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:connect_lo_to_po' course.id %}" class="btn btn-warning">
+                        <i class="bi bi-link-45deg"></i> Connect LO to PO
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -150,8 +199,13 @@
         
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header bg-secondary text-white">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-people"></i> Enrolled Students</h5>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:enroll_student_to_course' course.id %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-plus-circle"></i> Enroll
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     {% if students %}
@@ -179,6 +233,11 @@
                     {% endif %}
                     {% else %}
                     <p class="text-muted">No students enrolled yet.</p>
+                    {% if can_edit %}
+                    <a href="{% url 'edupace_app:enroll_student_to_course' course.id %}" class="btn btn-secondary">
+                        <i class="bi bi-plus-circle"></i> Enroll Student
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
