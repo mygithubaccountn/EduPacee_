@@ -28,26 +28,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <h5 class="card-title text-danger">
-                        <i class="bi bi-lock"></i> Locked Courses
-                    </h5>
-                    <h2 class="text-danger">{{ locked_courses }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <h5 class="card-title text-success">
-                        <i class="bi bi-unlock"></i> Active Courses
-                    </h5>
-                    <h2 class="text-success">{{ active_courses }}</h2>
-                </div>
-            </div>
-        </div>
     </div>
     
     <div class="row">
@@ -65,7 +45,6 @@
                                     <th>Course Code</th>
                                     <th>Course Name</th>
                                     <th>Credits</th>
-                                    <th>Status</th>
                                     <th>Teachers</th>
                                     <th>Students</th>
                                     <th>Actions</th>
@@ -77,24 +56,15 @@
                                     <td><strong>{{ course.code }}</strong></td>
                                     <td>{{ course.name }}</td>
                                     <td>{{ course.credits }}</td>
-                                    <td>
-                                        {% if course.is_locked %}
-                                            <span class="badge bg-danger">Locked</span>
-                                        {% else %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% endif %}
-                                    </td>
                                     <td>{{ course.teachers.count }}</td>
                                     <td>{{ course.students.count }}</td>
                                     <td>
                                         <a href="{% url 'edupace_app:academic_board_course_detail' course.id %}" class="btn btn-sm btn-primary">
                                             <i class="bi bi-eye"></i> View
                                         </a>
-                                        {% if not course.is_locked %}
                                         <a href="{% url 'edupace_app:edit_course' course.id %}" class="btn btn-sm btn-warning">
                                             <i class="bi bi-pencil"></i> Edit
                                         </a>
-                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

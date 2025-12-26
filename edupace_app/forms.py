@@ -40,13 +40,12 @@ class CourseForm(forms.ModelForm):
     """Form for creating/editing courses (Academic Board only)"""
     class Meta:
         model = Course
-        fields = ['code', 'name', 'description', 'credits', 'is_locked']
+        fields = ['code', 'name', 'description', 'credits']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'credits': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
-            'is_locked': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 

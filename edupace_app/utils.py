@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
 from django.db.models import Q, Sum, Avg
+from django.db import connection, transaction
 from .models import Teacher, Student, AcademicBoard, AssessmentGrade, AssessmentToLO, LOToPO
 
 
@@ -52,14 +53,14 @@ def role_required(*allowed_roles):
 
 
 def check_course_edit_permission(user, course):
-    """Check if user can edit a course (Academic Board only, and only if not locked)"""
+    """Check if user can edit a course (Academic Board only)"""
     if get_user_role(user) != 'academic_board':
         return False
-    return not course.is_locked
+    return True
 
 
 def check_learning_outcome_permission(user, course):
-    """Check if user can add learning outcomes (Teacher only, and only if course is not locked)"""
+    """Check if user can add learning outcomes (Teacher only)"""
     if get_user_role(user) != 'teacher':
         return False
     
@@ -70,7 +71,7 @@ def check_learning_outcome_permission(user, course):
     except Teacher.DoesNotExist:
         return False
     
-    return not course.is_locked
+    return True
 
 
 def check_grade_permission(user, course):
@@ -425,4 +426,126 @@ def get_course_graph_data(course, student=None):
         'nodes': nodes,
         'edges': edges,
     }
+
+
+# ============================================================================
+# SAFE DATABASE OPERATIONS WITH TRANSACTIONS
+# ============================================================================
+
+def execute_safe_db_operations(operations_callback):
+    """
+    Execute database operations safely within a transaction.
+    
+    This function wraps all database operations in a transaction. If any operation
+    fails, all changes are automatically rolled back, keeping the database consistent.
+    
+    Args:
+        operations_callback: A callable that receives a cursor and performs operations.
+                           Should use parameterized queries (%s) for safety.
+    
+    Returns:
+        tuple: (success: bool, message: str, result: any)
+    
+    Example:
+        def my_operations(cursor):
+            # Insert a student
+            cursor.execute(
+                "INSERT INTO auth_user (username, email, ...) VALUES (%s, %s, ...)",
+                ['username', 'email@example.com', ...]
+            )
+            user_id = cursor.fetchone()[0]
+            
+            cursor.execute(
+                "INSERT INTO edupace_app_student (user_id, student_id, ...) VALUES (%s, %s, ...)",
+                [user_id, 'STU001', ...]
+            )
+            return {'user_id': user_id}
+        
+        success, message, result = execute_safe_db_operations(my_operations)
+        if success:
+            print(f"Success: {message}")
+        else:
+            print(f"Error: {message}")
+    """
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                result = operations_callback(cursor)
+                return True, "Operations completed successfully", result
+    except Exception as e:
+        error_msg = f"Error occurred: {str(e)}. All changes have been rolled back."
+        return False, error_msg, None
+
+
+def safe_raw_sql_operations():
+    """
+    Standalone function demonstrating safe raw SQL operations.
+    Can be used directly or imported in views/scripts.
+    
+    Usage:
+        from edupace_app.utils import safe_raw_sql_operations
+        safe_raw_sql_operations()
+    """
+    def operations(cursor):
+        # ✅ Example: Insert a new student
+        cursor.execute(
+            """
+            INSERT INTO auth_user (username, email, first_name, last_name, 
+                                 password, is_staff, is_active, date_joined)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            [
+                'new.student',
+                'new@example.com',
+                'New',
+                'Student',
+                'pbkdf2_sha256$dummy',  # Note: Use proper password hashing in production
+                False,
+                True,
+                '2024-01-01 00:00:00'
+            ]
+        )
+        user_id = cursor.fetchone()[0]
+        
+        # ✅ Example: Insert student profile
+        cursor.execute(
+            """
+            INSERT INTO edupace_app_student (user_id, student_id, enrollment_date, 
+                                             program, created_at)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            [
+                user_id,
+                'STU2024002',
+                '2024-01-01',
+                'Computer Science',
+                '2024-01-01 00:00:00'
+            ]
+        )
+        
+        # ✅ Example: Update a course title
+        cursor.execute(
+            "UPDATE edupace_app_course SET name = %s, updated_at = %s WHERE id = %s",
+            ['Updated Course Name', '2024-01-01 00:00:00', 1]
+        )
+        
+        # ✅ Example: Create enrollment (ManyToMany)
+        cursor.execute(
+            """
+            INSERT INTO edupace_app_student_courses (student_id, course_id)
+            SELECT s.id, c.id
+            FROM edupace_app_student s, edupace_app_course c
+            WHERE s.student_id = %s AND c.id = %s
+            AND NOT EXISTS (
+                SELECT 1 FROM edupace_app_student_courses sc
+                WHERE sc.student_id = s.id AND sc.course_id = c.id
+            )
+            """,
+            ['STU2024002', 1]
+        )
+        
+        return {'user_id': user_id, 'student_id': 'STU2024002'}
+    
+    return execute_safe_db_operations(operations)
 

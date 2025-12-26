@@ -206,7 +206,6 @@ def teacher_course_detail(request, course_id):
         'assessments': assessments,
         'assessment_to_lo': assessment_to_lo,
         'grades': grades,
-        'can_edit': not course.is_locked,
         'graph_data': graph_data_json,
     }
     return render(request, 'edupace_app/teacher/course_detail.html', context)
@@ -255,10 +254,6 @@ def edit_learning_outcome(request, lo_id):
         messages.error(request, 'You do not have permission to edit this learning outcome.')
         return redirect('edupace_app:teacher_dashboard')
     
-    if learning_outcome.course.is_locked:
-        messages.error(request, 'This course is locked. You cannot edit learning outcomes.')
-        return redirect('edupace_app:teacher_course_detail', course_id=learning_outcome.course.id)
-    
     if request.method == 'POST':
         form = LearningOutcomeForm(request.POST, instance=learning_outcome)
         if form.is_valid():
@@ -288,10 +283,6 @@ def delete_learning_outcome(request, lo_id):
     if course not in teacher.courses.all():
         messages.error(request, 'You do not have permission to delete this learning outcome.')
         return redirect('edupace_app:teacher_dashboard')
-    
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot delete learning outcomes.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course.id)
     
     if request.method == 'POST':
         learning_outcome.delete()
@@ -470,14 +461,10 @@ def academic_board_dashboard(request):
     """Academic Board dashboard"""
     courses = Course.objects.all()
     total_courses = courses.count()
-    locked_courses = courses.filter(is_locked=True).count()
-    active_courses = total_courses - locked_courses
     
     context = {
         'courses': courses,
         'total_courses': total_courses,
-        'locked_courses': locked_courses,
-        'active_courses': active_courses,
     }
     return render(request, 'edupace_app/academic_board/dashboard.html', context)
 
@@ -525,7 +512,6 @@ def academic_board_course_detail(request, course_id):
         'teachers': teachers,
         'students': students,
         'grades': grades,
-        'can_edit': not course.is_locked,
         'graph_data': graph_data_json,
     }
     return render(request, 'edupace_app/academic_board/course_detail.html', context)
@@ -735,10 +721,6 @@ def add_assessment(request, course_id):
         messages.error(request, 'You do not teach this course.')
         return redirect('edupace_app:teacher_dashboard')
     
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot add assessments.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course_id)
-    
     if request.method == 'POST':
         form = AssessmentForm(request.POST)
         if form.is_valid():
@@ -767,10 +749,6 @@ def edit_assessment(request, assessment_id):
     if assessment.course not in teacher.courses.all():
         messages.error(request, 'You do not have permission to edit this assessment.')
         return redirect('edupace_app:teacher_dashboard')
-    
-    if assessment.course.is_locked:
-        messages.error(request, 'This course is locked. You cannot edit assessments.')
-        return redirect('edupace_app:teacher_course_detail', course_id=assessment.course.id)
     
     if request.method == 'POST':
         form = AssessmentForm(request.POST, instance=assessment)
@@ -801,10 +779,6 @@ def delete_assessment(request, assessment_id):
         messages.error(request, 'You do not have permission to delete this assessment.')
         return redirect('edupace_app:teacher_dashboard')
     
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot delete assessments.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course.id)
-    
     if request.method == 'POST':
         assessment.delete()
         messages.success(request, 'Assessment deleted successfully.')
@@ -827,10 +801,6 @@ def add_assessment_grade(request, course_id):
     if course not in teacher.courses.all():
         messages.error(request, 'You do not teach this course.')
         return redirect('edupace_app:teacher_dashboard')
-    
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot add grades.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course_id)
     
     if request.method == 'POST':
         form = AssessmentGradeForm(request.POST, course=course)
@@ -866,10 +836,6 @@ def connect_assessment_to_lo(request, course_id):
         messages.error(request, 'You do not teach this course.')
         return redirect('edupace_app:teacher_dashboard')
     
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot modify connections.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course_id)
-    
     if request.method == 'POST':
         form = AssessmentToLOForm(request.POST, course=course)
         if form.is_valid():
@@ -904,10 +870,6 @@ def delete_assessment_to_lo(request, connection_id):
     if course not in teacher.courses.all():
         messages.error(request, 'You do not have permission to delete this connection.')
         return redirect('edupace_app:teacher_dashboard')
-    
-    if course.is_locked:
-        messages.error(request, 'This course is locked. You cannot delete connections.')
-        return redirect('edupace_app:teacher_course_detail', course_id=course.id)
     
     if request.method == 'POST':
         connection.delete()

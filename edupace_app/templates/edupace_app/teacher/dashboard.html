@@ -71,13 +71,6 @@
                                     <td>{{ course.name }}</td>
                                     <td>{{ course.credits }}</td>
                                     <td>
-                                        {% if course.is_locked %}
-                                            <span class="badge bg-danger">Locked</span>
-                                        {% else %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
                                         <a href="{% url 'edupace_app:teacher_course_detail' course.id %}" class="btn btn-sm btn-primary">
                                             <i class="bi bi-eye"></i> View
                                         </a>

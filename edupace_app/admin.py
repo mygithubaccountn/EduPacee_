@@ -8,8 +8,8 @@ from .models import (
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['code', 'name', 'credits', 'is_locked', 'created_at']
-    list_filter = ['is_locked', 'created_at']
+    list_display = ['code', 'name', 'credits', 'created_at']
+    list_filter = ['created_at']
     search_fields = ['code', 'name']
     readonly_fields = ['created_at', 'updated_at']
 

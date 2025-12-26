@@ -22,21 +22,10 @@
                     <h4 class="mb-0">
                         <i class="bi bi-book"></i> {{ course.code }} - {{ course.name }}
                     </h4>
-                    {% if course.is_locked %}
-                    <span class="badge bg-danger">Course Locked</span>
-                    {% else %}
-                    <span class="badge bg-success">Active</span>
-                    {% endif %}
                 </div>
                 <div class="card-body">
                     <p><strong>Description:</strong> {{ course.description|default:"No description available." }}</p>
                     <p><strong>Credits:</strong> {{ course.credits }}</p>
-                    
-                    {% if not can_edit %}
-                    <div class="alert alert-warning">
-                        <i class="bi bi-lock"></i> This course is locked. You cannot add learning outcomes or grades.
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

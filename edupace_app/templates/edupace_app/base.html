@@ -7,44 +7,820 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
+        /* ============================================
+           SOPHISTICATED LIGHT DESIGN SYSTEM
+           Well-Crafted, Professional, Modern
+           ============================================ */
+        
+        /* Color Palette - Harmonious & Professional */
+        :root {
+            --primary: #0891b2;        /* Sophisticated teal/cyan */
+            --primary-dark: #0e7490;   /* Darker teal for hover */
+            --primary-light: #06b6d4;  /* Lighter teal for accents */
+            --secondary: #6366f1;      /* Indigo for variety */
+            --success: #059669;        /* Fresh green */
+            --warning: #d97706;        /* Warm amber */
+            --danger: #dc2626;         /* Clear red */
+            --background: #fafafa;     /* Very light gray */
+            --surface: #ffffff;        /* Pure white for cards */
+            --text-primary: #1f2937;    /* Dark gray, not black */
+            --text-secondary: #6b7280; /* Medium gray */
+            --border: #e5e7eb;         /* Light border */
+            --border-light: #f3f4f6;   /* Very light border */
         }
+        
+        /* Import Modern Font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        /* Base Typography - Clean & Professional */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 15px;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+        
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+        
+        h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        h5 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        h6 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        /* Sophisticated Navbar */
+        .navbar {
+            background-color: var(--surface) !important;
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary) !important;
+            letter-spacing: -0.02em;
+        }
+        
+        .navbar-brand:hover {
+            color: var(--primary-dark) !important;
+        }
+        
+        .navbar-text {
+            font-weight: 500;
+            color: var(--text-secondary) !important;
+            font-size: 0.9375rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--text-secondary) !important;
+            font-size: 0.9375rem;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary) !important;
+            background-color: var(--background);
+            border-radius: 6px;
+        }
+        
+        /* Sophisticated Cards - Clean & Elegant */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            background: var(--surface);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            letter-spacing: 0;
+        }
+        
+        .card-header.bg-primary {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid var(--primary-dark);
+        }
+        
+        .card-header.bg-success {
+            background-color: var(--success) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #047857;
+        }
+        
+        .card-header.bg-danger {
+            background-color: var(--danger) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #b91c1c;
+        }
+        
+        .card-header.bg-warning {
+            background-color: var(--warning) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #b45309;
+        }
+        
+        .card-header.bg-info {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid var(--primary-dark);
+        }
+        
+        .card-header.bg-secondary {
+            background-color: var(--secondary) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #4f46e5;
+        }
+        
+        .card-header.bg-dark {
+            background-color: var(--text-primary) !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #111827;
+        }
+        
+        .card-body {
+            padding: 2rem;
+            background-color: var(--surface);
+        }
+        
+        /* Sophisticated Stat Cards - Elegant Accents */
+        .stat-card {
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .card-body {
+            padding: 2rem;
+        }
+        
+        .stat-card .card-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: none;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card h2 {
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            border: none;
+            padding: 0;
+            letter-spacing: -0.03em;
+        }
+        
+        .stat-card h4 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Stat card border colors based on content */
+        .stat-card:has(.text-primary) {
+            border-left-color: var(--primary);
+        }
+        
+        .stat-card:has(.text-success) {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card:has(.text-danger) {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-card:has(.text-info) {
+            border-left-color: var(--primary);
+        }
+        
+        .stat-card .text-primary {
+            color: var(--primary) !important;
+        }
+        
+        .stat-card .text-success {
+            color: var(--success) !important;
+        }
+        
+        .stat-card .text-danger {
+            color: var(--danger) !important;
+        }
+        
+        .stat-card .text-info {
+            color: var(--primary) !important;
+        }
+        
+        /* Sophisticated Buttons - Professional & Refined */
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.625rem 1.5rem;
+            font-size: 0.9375rem;
+            border: 1px solid transparent;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: #ffffff;
+            border-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #047857;
+            color: #ffffff;
+            border-color: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: #ffffff;
+            border-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            color: #ffffff;
+            border-color: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #ffffff;
+            border-color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #b45309;
+            color: #ffffff;
+            border-color: #b45309;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+        
+        .btn-info {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+        
+        .btn-info:hover {
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: #ffffff;
+            border-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #4f46e5;
+            color: #ffffff;
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-outline-primary {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background-color: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-danger {
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            background-color: transparent;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-success {
+            border: 1px solid var(--success);
+            color: var(--success);
+            background-color: transparent;
+        }
+        
+        .btn-outline-success:hover {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-light {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn-light:hover {
+            background-color: var(--surface);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        /* Sophisticated Tables - Clean & Professional */
+        .table {
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table thead {
+            background-color: var(--background);
+            color: var(--text-primary);
+        }
+        
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .table tbody tr {
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.15s ease;
+            background-color: var(--surface);
+        }
+        
+        .table tbody tr:hover {
+            background-color: var(--background);
+        }
+        
+        .table tbody td {
+            padding: 1.25rem 1.5rem;
+            vertical-align: middle;
+            border-top: none;
+            color: var(--text-primary);
+        }
+        
+        /* Sophisticated Badges - Clean & Professional */
+        .badge {
+            padding: 0.4em 0.75em;
+            font-weight: 600;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            letter-spacing: 0;
+            border: none;
+        }
+        
+        .badge.bg-success {
+            background-color: var(--success) !important;
+        }
+        
+        .badge.bg-danger {
+            background-color: var(--danger) !important;
+        }
+        
+        .badge.bg-primary {
+            background-color: var(--primary) !important;
+        }
+        
+        /* Sophisticated Forms - Clean Inputs */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+            background-color: var(--surface);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+            outline: none;
+            background-color: var(--surface);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            letter-spacing: 0;
+        }
+        
+        .form-text {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-top: 0.375rem;
+        }
+        
+        /* Sophisticated Alerts - Subtle & Professional */
+        .alert {
+            border-radius: 8px;
+            border: 1px solid;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+        
+        .alert-warning {
+            background-color: #fef3c7;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+        
+        .alert-info {
+            background-color: #cffafe;
+            border-color: var(--primary);
+            color: #0e7490;
+        }
+        
+        /* Sophisticated List Groups - Clean Spacing */
+        .list-group-item {
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            padding: 1.25rem 1.5rem;
+            background-color: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .list-group-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            margin-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: var(--background);
+            border-color: var(--primary);
+        }
+        
+        /* Modern Breadcrumbs - Minimal */
+        .breadcrumb {
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+        
+        .breadcrumb-item a {
+            color: #6b7280;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #0a0a0a;
+        }
+        
+        /* Sophisticated Container - Clean Layout */
+        .container-fluid {
+            padding: 3rem 2.5rem;
+            max-width: 1400px;
+            background-color: var(--background);
+        }
+        
+        .container {
+            max-width: 1200px;
+            background-color: var(--background);
+        }
+        
+        /* Sophisticated Sidebar */
         .sidebar {
             min-height: calc(100vh - 56px);
-            background-color: #f8f9fa;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
         }
+        
         .main-content {
             min-height: calc(100vh - 56px);
+            background-color: var(--background);
         }
-        .card {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            border: 1px solid rgba(0, 0, 0, 0.125);
+        
+        /* Sophisticated Graph Container */
+        #cy {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
         }
-        .stat-card {
-            transition: transform 0.2s;
+        
+        /* Icon Spacing */
+        .bi {
+            margin-right: 0.5rem;
         }
-        .stat-card:hover {
-            transform: translateY(-5px);
+        
+        /* Sophisticated Empty States */
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+        
+        p.text-muted {
+            padding: 2rem;
+            text-align: center;
+            background-color: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Sophisticated Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        /* Bold Enterprise Table Responsive */
+        .table-responsive {
+            border: 2px solid #2a2a2a;
+            border-radius: 8px;
+        }
+        
+        /* Button Group Spacing */
+        .btn-group .btn, .d-flex .btn {
+            margin: 0 0.5rem;
+        }
+        
+        /* Card Header Icons */
+        .card-header i {
+            margin-right: 0.75rem;
+        }
+        
+        /* Sophisticated Focus States */
+        .btn:focus-visible,
+        .form-control:focus-visible,
+        .form-select:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        /* Sophisticated Responsive Design */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 2rem 1.5rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .card-header {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.875rem;
+            }
+            
+            .stat-card .card-body {
+                padding: 1.5rem;
+            }
+            
+            .stat-card h2 {
+                font-size: 2.25rem;
+            }
+        }
+        
+        /* Rounded pills */
+        .rounded-pill {
+            border-radius: 50rem !important;
+        }
+        
+        /* Spacing utilities */
+        .mb-4 {
+            margin-bottom: 2.5rem !important;
+        }
+        
+        .mt-4 {
+            margin-top: 2.5rem !important;
+        }
+        
+        /* Visual hierarchy */
+        h2 i {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+        
+        /* Breadcrumbs */
+        .breadcrumb {
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-secondary);
+        }
+        
+        /* Table responsive */
+        .table-responsive {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        
+        /* Button group spacing */
+        .btn-group .btn, .d-flex .btn {
+            margin: 0 0.25rem;
+        }
+        
+        /* Card header icons */
+        .card-header i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Login page */
+        .card.shadow {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 12px;
+            background-color: var(--surface) !important;
+        }
+        
+        /* Breadcrumbs - Bold Style */
+        .breadcrumb {
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 2.5rem;
+        }
+        
+        .breadcrumb-item a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-item.active {
+            color: #9ca3af;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'edupace_app:dashboard_redirect' %}">
                 <i class="bi bi-mortarboard-fill"></i> EduPace
             </a>
             {% if user.is_authenticated %}
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: 1px solid #e5e7eb;">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <span class="navbar-text text-white me-3">
+                        <span class="navbar-text me-3">
                             <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
                         </span>
                     </li>

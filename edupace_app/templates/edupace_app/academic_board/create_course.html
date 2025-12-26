@@ -49,16 +49,6 @@
                             {% endif %}
                         </div>
                         
-                        <div class="mb-3 form-check">
-                            {{ form.is_locked }}
-                            <label class="form-check-label" for="{{ form.is_locked.id_for_label }}">
-                                Lock Course (prevents teachers from adding learning outcomes/grades)
-                            </label>
-                            {% if form.is_locked.errors %}
-                                <div class="text-danger small">{{ form.is_locked.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'edupace_app:academic_board_dashboard' %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancel
