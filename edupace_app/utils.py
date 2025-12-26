@@ -66,7 +66,8 @@ def check_learning_outcome_permission(user, course):
     
     try:
         teacher = user.teacher_profile
-        if course not in teacher.courses.all():
+        # Check if teacher is assigned to this course
+        if not teacher.courses.filter(id=course.id).exists():
             return False
     except Teacher.DoesNotExist:
         return False

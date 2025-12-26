@@ -200,6 +200,9 @@ def teacher_course_detail(request, course_id):
     graph_data = get_course_graph_data(course)
     graph_data_json = mark_safe(json.dumps(graph_data))
     
+    # Check if teacher can add learning outcomes (for button visibility)
+    can_edit = check_learning_outcome_permission(request.user, course)
+    
     context = {
         'course': course,
         'learning_outcomes': learning_outcomes,
@@ -207,6 +210,7 @@ def teacher_course_detail(request, course_id):
         'assessment_to_lo': assessment_to_lo,
         'grades': grades,
         'graph_data': graph_data_json,
+        'can_edit': can_edit,
     }
     return render(request, 'edupace_app/teacher/course_detail.html', context)
 
