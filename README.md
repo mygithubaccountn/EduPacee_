@@ -26,6 +26,12 @@ EduPace is a comprehensive Django-based platform for managing academic courses, 
 
 ### Setup Steps
 
+**Quick Setup (Recommended)**:
+- On Windows: Run `setup.bat`
+- On Linux/Mac: Run `bash setup.sh`
+
+**Manual Setup**:
+
 1. **Activate your virtual environment** (if using one):
    ```bash
    source venv/bin/activate  # On macOS/Linux
