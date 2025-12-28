@@ -7,22 +7,65 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      - name: Show repository structure
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 4 -type f -name "manage.py" || echo "manage.py not found"
+          find . -maxdepth 4 -type f -name "requirements.txt" || echo "requirements.txt not found"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing basic Django"
+            pip install django
+          fi
 
-      - name: Django checks and tests
+      - name: Run Django system check
         env:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
-          python manage.py check
-          python manage.py test
+          if [ -f manage.py ]; then
+            python manage.py check --deploy || python manage.py check
+          else
+            echo "Error: manage.py not found at repo root"
+            exit 1
+          fi
+
+      - name: Run database migrations
+        env:
+          DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
+        run: |
+          if [ -f manage.py ]; then
+            python manage.py migrate --run-syncdb || python manage.py migrate
+          else
+            echo "Error: manage.py not found"
+            exit 1
+          fi
+
+      - name: Run Django tests
+        env:
+          DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
+        run: |
+          if [ -f manage.py ]; then
+            python manage.py test edupace_app --verbosity=2 || python manage.py test --verbosity=2
+          else
+            echo "Error: manage.py not found"
+            exit 1
+          fi
