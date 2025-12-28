@@ -200,6 +200,9 @@ def teacher_course_detail(request, course_id):
     graph_data = get_course_graph_data(course)
     graph_data_json = mark_safe(json.dumps(graph_data))
     
+    # Check if teacher can add learning outcomes (for button visibility)
+    can_edit = check_learning_outcome_permission(request.user, course)
+    
     context = {
         'course': course,
         'learning_outcomes': learning_outcomes,
@@ -207,6 +210,7 @@ def teacher_course_detail(request, course_id):
         'assessment_to_lo': assessment_to_lo,
         'grades': grades,
         'graph_data': graph_data_json,
+        'can_edit': can_edit,
     }
     return render(request, 'edupace_app/teacher/course_detail.html', context)
 
@@ -224,16 +228,30 @@ def add_learning_outcome(request, course_id):
         return redirect('edupace_app:teacher_course_detail', course_id=course_id)
     
     if request.method == 'POST':
-        form = LearningOutcomeForm(request.POST)
+        form = LearningOutcomeForm(request.POST, course=course)
         if form.is_valid():
             learning_outcome = form.save(commit=False)
             learning_outcome.course = course
             learning_outcome.created_by = request.user
             learning_outcome.save()
-            messages.success(request, f'Learning outcome {learning_outcome.code} added successfully.')
+            
+            # Create LOToPO connections for selected program outcomes
+            selected_pos = form.cleaned_data.get('program_outcomes', [])
+            if selected_pos:
+                for po in selected_pos:
+                    # Default weight of 1.0, can be adjusted later by Department Head
+                    LOToPO.objects.get_or_create(
+                        learning_outcome=learning_outcome,
+                        program_outcome=po,
+                        defaults={'weight': 1.0}
+                    )
+                messages.success(request, f'Learning outcome {learning_outcome.code} added successfully with {len(selected_pos)} Program Outcome connection(s).')
+            else:
+                messages.success(request, f'Learning outcome {learning_outcome.code} added successfully.')
+            
             return redirect('edupace_app:teacher_course_detail', course_id=course_id)
     else:
-        form = LearningOutcomeForm()
+        form = LearningOutcomeForm(course=course)
     
     context = {
         'form': form,
@@ -391,6 +409,117 @@ def upload_grades(request, course_id):
 
 @login_required
 @role_required('teacher')
+def midterm_outcomes_view(request, course_id):
+    """View Midterm LO and PO scores for all students"""
+    teacher = get_user_profile(request.user)
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Check if teacher teaches this course
+    if course not in teacher.courses.all():
+        messages.error(request, 'You do not teach this course.')
+        return redirect('edupace_app:teacher_dashboard')
+    
+    # Find Midterm assessment
+    midterm_assessment = Assessment.objects.filter(course=course, name__icontains='midterm').first()
+    if not midterm_assessment:
+        messages.error(request, 'Midterm assessment not found for this course.')
+        return redirect('edupace_app:teacher_course_detail', course_id=course_id)
+    
+    # Get all students enrolled in the course
+    students = course.students.all()
+    
+    # Get learning outcomes connected to Midterm assessment
+    assessment_to_lo = AssessmentToLO.objects.filter(
+        assessment=midterm_assessment
+    ).select_related('learning_outcome')
+    
+    learning_outcomes = [conn.learning_outcome for conn in assessment_to_lo]
+    
+    # Get program outcomes connected to these learning outcomes
+    lo_to_po = LOToPO.objects.filter(
+        learning_outcome__in=learning_outcomes
+    ).select_related('program_outcome', 'learning_outcome')
+    
+    # Get unique program outcomes
+    program_outcomes = {}
+    for conn in lo_to_po:
+        if conn.program_outcome.id not in program_outcomes:
+            program_outcomes[conn.program_outcome.id] = conn.program_outcome
+    
+    # Calculate scores for each student
+    student_scores = []
+    for student in students:
+        # Get Midterm assessment grade for this student
+        try:
+            assessment_grade = AssessmentGrade.objects.get(
+                assessment=midterm_assessment,
+                student=student
+            )
+            midterm_score = assessment_grade.grade
+        except AssessmentGrade.DoesNotExist:
+            midterm_score = None
+        
+        # Calculate LO scores based on Midterm assessment only
+        # For Midterm-only view, we show the Midterm score directly as the LO contribution
+        lo_scores_list = []
+        for lo in learning_outcomes:
+            # Check if this LO is connected to Midterm
+            connection = assessment_to_lo.filter(learning_outcome=lo).first()
+            if connection and midterm_score is not None:
+                # Show Midterm score directly (not weighted, as it's Midterm-specific view)
+                lo_score = midterm_score
+            else:
+                lo_score = None
+            lo_scores_list.append({
+                'lo': lo,
+                'score': lo_score
+            })
+        
+        # Calculate PO scores based on LO scores
+        po_scores_list = []
+        for po_id, po in program_outcomes.items():
+            # Get all LO connections to this PO
+            po_connections = lo_to_po.filter(program_outcome=po)
+            
+            total_weighted_score = 0.0
+            total_weight = 0.0
+            
+            for po_conn in po_connections:
+                # Find LO score from lo_scores_list
+                lo_score_item = next((item for item in lo_scores_list if item['lo'].id == po_conn.learning_outcome.id), None)
+                if lo_score_item and lo_score_item['score'] is not None:
+                    total_weighted_score += lo_score_item['score'] * po_conn.weight
+                    total_weight += po_conn.weight
+            
+            if total_weight > 0:
+                po_score = total_weighted_score / total_weight
+            else:
+                po_score = None
+            
+            po_scores_list.append({
+                'po': po,
+                'score': po_score
+            })
+        
+        student_scores.append({
+            'student': student,
+            'midterm_score': midterm_score,
+            'lo_scores_list': lo_scores_list,
+            'po_scores_list': po_scores_list,
+        })
+    
+    context = {
+        'course': course,
+        'midterm_assessment': midterm_assessment,
+        'learning_outcomes': learning_outcomes,
+        'program_outcomes': list(program_outcomes.values()),
+        'student_scores': student_scores,
+    }
+    return render(request, 'edupace_app/teacher/midterm_outcomes.html', context)
+
+
+@login_required
+@role_required('teacher')
 def convert_grades_to_pdf(request, course_id):
     """Convert grades Excel to PDF"""
     teacher = get_user_profile(request.user)
@@ -458,7 +587,7 @@ def convert_grades_to_pdf(request, course_id):
 @login_required
 @role_required('academic_board')
 def academic_board_dashboard(request):
-    """Academic Board dashboard"""
+    """Department Head dashboard"""
     courses = Course.objects.all()
     total_courses = courses.count()
     
@@ -478,7 +607,7 @@ def create_course(request):
         if form.is_valid():
             course = form.save()
             messages.success(request, f'Course {course.code} created successfully.')
-            return redirect('edupace_app:academic_board_course_detail', course_id=course.id)
+            return redirect('edupace_app:academic_board_dashboard')
     else:
         form = CourseForm()
     
@@ -488,7 +617,7 @@ def create_course(request):
 @login_required
 @role_required('academic_board')
 def academic_board_course_detail(request, course_id):
-    """Academic Board view of a specific course"""
+    """Department Head view of a specific course"""
     course = get_object_or_404(Course, id=course_id)
     academic_board = get_user_profile(request.user)
     
@@ -566,7 +695,7 @@ def delete_course(request, course_id):
 @login_required
 @role_required('academic_board')
 def add_program_outcome(request):
-    """Add program outcome (Academic Board level, not course-specific)"""
+    """Add program outcome (Department Head level, not course-specific)"""
     academic_board = get_user_profile(request.user)
     
     if request.method == 'POST':

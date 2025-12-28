@@ -12,7 +12,7 @@ class RoleLoginForm(AuthenticationForm):
     ROLE_CHOICES = [
         ('student', 'Student'),
         ('teacher', 'Teacher'),
-        ('academic_board', 'Academic Board'),
+        ('academic_board', 'Department Head'),
     ]
     
     role = forms.ChoiceField(
@@ -37,7 +37,7 @@ class RoleLoginForm(AuthenticationForm):
 
 
 class CourseForm(forms.ModelForm):
-    """Form for creating/editing courses (Academic Board only)"""
+    """Form for creating/editing courses (Department Head only)"""
     class Meta:
         model = Course
         fields = ['code', 'name', 'description', 'credits']
@@ -62,6 +62,13 @@ class ProgramOutcomeForm(forms.ModelForm):
 
 class LearningOutcomeForm(forms.ModelForm):
     """Form for creating/editing learning outcomes"""
+    program_outcomes = forms.ModelMultipleChoiceField(
+        queryset=ProgramOutcome.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-select'}),
+        required=False,
+        help_text="Select Program Outcomes to map this Learning Outcome to (optional)"
+    )
+    
     class Meta:
         model = LearningOutcome
         fields = ['code', 'description']
@@ -69,6 +76,12 @@ class LearningOutcomeForm(forms.ModelForm):
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        course = kwargs.pop('course', None)
+        super().__init__(*args, **kwargs)
+        # If course is provided, we can filter POs if needed in the future
+        # For now, show all POs
 
 
 class GradeUploadForm(forms.Form):

@@ -53,7 +53,7 @@ def role_required(*allowed_roles):
 
 
 def check_course_edit_permission(user, course):
-    """Check if user can edit a course (Academic Board only)"""
+    """Check if user can edit a course (Department Head only)"""
     if get_user_role(user) != 'academic_board':
         return False
     return True
@@ -66,7 +66,8 @@ def check_learning_outcome_permission(user, course):
     
     try:
         teacher = user.teacher_profile
-        if course not in teacher.courses.all():
+        # Check if teacher is assigned to this course
+        if not teacher.courses.filter(id=course.id).exists():
             return False
     except Teacher.DoesNotExist:
         return False
