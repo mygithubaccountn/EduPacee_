@@ -61,7 +61,15 @@ jobs:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
           if [ -f manage.py ]; then
-            python manage.py test edupace_app --verbosity=2 || exit 1
+            # Run tests - exit code 0 if tests pass or no tests found
+            python manage.py test edupace_app --verbosity=2
+            TEST_EXIT_CODE=$?
+            if [ $TEST_EXIT_CODE -eq 0 ]; then
+              echo "✅ Tests passed or no tests found"
+            else
+              echo "❌ Tests failed with exit code $TEST_EXIT_CODE"
+              exit 1
+            fi
           else
             echo "Error: manage.py not found"
             exit 1
