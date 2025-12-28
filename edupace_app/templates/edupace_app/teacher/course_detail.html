@@ -200,6 +200,9 @@
                         <a href="{% url 'edupace_app:convert_grades_to_pdf' course.id %}" class="btn btn-sm btn-danger">
                             <i class="bi bi-file-pdf"></i> Export PDF
                         </a>
+                        <a href="{% url 'edupace_app:midterm_outcomes' course.id %}" class="btn btn-sm btn-info">
+                            <i class="bi bi-table"></i> Midterm Outcomes
+                        </a>
                     </div>
                     {% endif %}
                 </div>

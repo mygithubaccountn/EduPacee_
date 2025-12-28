@@ -1,0 +1,111 @@
+{% extends 'edupace_app/base.html' %}
+
+{% block title %}Midterm Outcomes - {{ course.code }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'edupace_app:teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'edupace_app:teacher_course_detail' course.id %}">{{ course.code }}</a></li>
+                    <li class="breadcrumb-item active">Midterm Outcomes</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-data"></i> Midterm Outcomes - {{ course.code }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Assessment:</strong> {{ midterm_assessment.name }}</p>
+                    <p><strong>Course:</strong> {{ course.code }} - {{ course.name }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-table"></i> Student Outcomes</h5>
+                </div>
+                <div class="card-body">
+                    {% if student_scores %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Midterm Score</th>
+                                    {% for lo in learning_outcomes %}
+                                    <th>LO: {{ lo.code }}</th>
+                                    {% endfor %}
+                                    {% for po in program_outcomes %}
+                                    <th>PO: {{ po.code }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score_data in student_scores %}
+                                <tr>
+                                    <td><strong>{{ score_data.student.student_id }}</strong></td>
+                                    <td>{{ score_data.student.user.get_full_name|default:score_data.student.user.username }}</td>
+                                    <td>
+                                        {% if score_data.midterm_score is not None %}
+                                            <span class="badge bg-primary">{{ score_data.midterm_score|floatformat:1 }}%</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% for lo_score_item in score_data.lo_scores_list %}
+                                    <td>
+                                        {% if lo_score_item.score is not None %}
+                                            {{ lo_score_item.score|floatformat:1 }}%
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                    {% for po_score_item in score_data.po_scores_list %}
+                                    <td>
+                                        {% if po_score_item.score is not None %}
+                                            {{ po_score_item.score|floatformat:1 }}%
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No students enrolled in this course.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'edupace_app:teacher_course_detail' course.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Course
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

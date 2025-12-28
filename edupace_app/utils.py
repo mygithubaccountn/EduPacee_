@@ -53,7 +53,7 @@ def role_required(*allowed_roles):
 
 
 def check_course_edit_permission(user, course):
-    """Check if user can edit a course (Academic Board only)"""
+    """Check if user can edit a course (Department Head only)"""
     if get_user_role(user) != 'academic_board':
         return False
     return True

@@ -29,8 +29,9 @@ urlpatterns = [
     path('teacher/course/<int:course_id>/add-assessment-grade/', views.add_assessment_grade, name='add_assessment_grade'),
     path('teacher/course/<int:course_id>/connect-assessment-to-lo/', views.connect_assessment_to_lo, name='connect_assessment_to_lo'),
     path('teacher/assessment-to-lo/<int:connection_id>/delete/', views.delete_assessment_to_lo, name='delete_assessment_to_lo'),
+    path('teacher/course/<int:course_id>/midterm-outcomes/', views.midterm_outcomes_view, name='midterm_outcomes'),
     
-    # Academic Board URLs
+    # Department Head (Academic Board) URLs
     path('academic-board/dashboard/', views.academic_board_dashboard, name='academic_board_dashboard'),
     path('academic-board/course/create/', views.create_course, name='create_course'),
     path('academic-board/course/<int:course_id>/', views.academic_board_course_detail, name='academic_board_course_detail'),

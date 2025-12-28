@@ -33,6 +33,15 @@
                             {% endif %}
                         </div>
                         
+                        <div class="mb-3">
+                            <label for="{{ form.program_outcomes.id_for_label }}" class="form-label">Program Outcomes</label>
+                            {{ form.program_outcomes }}
+                            {% if form.program_outcomes.errors %}
+                                <div class="text-danger small">{{ form.program_outcomes.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Select one or more Program Outcomes to map this Learning Outcome to (hold Ctrl/Cmd to select multiple)</small>
+                        </div>
+                        
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'edupace_app:teacher_course_detail' course.id %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancel
