@@ -30,9 +30,15 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
-          python manage.py migrate
+          python manage.py migrate --run-syncdb
       
-      - name: Run tests with pytest
+      - name: Run basic tests first
+        env:
+          DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
+        run: |
+          pytest edupace_app/tests/test_basic.py -v
+      
+      - name: Run all tests with pytest
         env:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
