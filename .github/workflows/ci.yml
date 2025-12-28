@@ -30,4 +30,4 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
-          pytest edupace_app/tests/ -v --cov=edupace_app --cov-report=xml --cov-report=term
+          pytest edupace_app/tests/ -v --cov=edupace_app --cov-report=xml --cov-report=term --create-db

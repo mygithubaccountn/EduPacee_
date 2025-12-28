@@ -6,6 +6,12 @@ from django.contrib.auth.models import User
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from edupace_app.models import (
+    Student, Teacher, AcademicBoard, Course,
+    ProgramOutcome, LearningOutcome, Grade,
+    Assessment, AssessmentGrade, AssessmentToLO, LOToPO
+)
+
 fake = Faker()
 
 
@@ -25,7 +31,7 @@ class UserFactory(DjangoModelFactory):
 class StudentFactory(DjangoModelFactory):
     """Factory for creating Student instances"""
     class Meta:
-        model = 'edupace_app.Student'
+        model = Student
         django_get_or_create = ('student_id',)
     
     user = factory.SubFactory(UserFactory)
@@ -37,7 +43,7 @@ class StudentFactory(DjangoModelFactory):
 class TeacherFactory(DjangoModelFactory):
     """Factory for creating Teacher instances"""
     class Meta:
-        model = 'edupace_app.Teacher'
+        model = Teacher
         django_get_or_create = ('employee_id',)
     
     user = factory.SubFactory(UserFactory)
@@ -48,7 +54,7 @@ class TeacherFactory(DjangoModelFactory):
 class AcademicBoardFactory(DjangoModelFactory):
     """Factory for creating AcademicBoard instances"""
     class Meta:
-        model = 'edupace_app.AcademicBoard'
+        model = AcademicBoard
         django_get_or_create = ('employee_id',)
     
     user = factory.SubFactory(UserFactory)
@@ -59,7 +65,7 @@ class AcademicBoardFactory(DjangoModelFactory):
 class CourseFactory(DjangoModelFactory):
     """Factory for creating Course instances"""
     class Meta:
-        model = 'edupace_app.Course'
+        model = Course
         django_get_or_create = ('code',)
     
     code = factory.Sequence(lambda n: f'CS{n:03d}')
@@ -72,7 +78,7 @@ class CourseFactory(DjangoModelFactory):
 class ProgramOutcomeFactory(DjangoModelFactory):
     """Factory for creating ProgramOutcome instances"""
     class Meta:
-        model = 'edupace_app.ProgramOutcome'
+        model = ProgramOutcome
     
     academic_board = factory.SubFactory(AcademicBoardFactory)
     code = factory.Sequence(lambda n: f'PO{n}')
@@ -83,7 +89,7 @@ class ProgramOutcomeFactory(DjangoModelFactory):
 class LearningOutcomeFactory(DjangoModelFactory):
     """Factory for creating LearningOutcome instances"""
     class Meta:
-        model = 'edupace_app.LearningOutcome'
+        model = LearningOutcome
     
     course = factory.SubFactory(CourseFactory)
     code = factory.Sequence(lambda n: f'LO{n}')
@@ -94,7 +100,7 @@ class LearningOutcomeFactory(DjangoModelFactory):
 class GradeFactory(DjangoModelFactory):
     """Factory for creating Grade instances"""
     class Meta:
-        model = 'edupace_app.Grade'
+        model = Grade
     
     student = factory.SubFactory(StudentFactory)
     course = factory.SubFactory(CourseFactory)
@@ -108,7 +114,7 @@ class GradeFactory(DjangoModelFactory):
 class AssessmentFactory(DjangoModelFactory):
     """Factory for creating Assessment instances"""
     class Meta:
-        model = 'edupace_app.Assessment'
+        model = Assessment
     
     course = factory.SubFactory(CourseFactory)
     name = factory.Iterator(['Midterm', 'Final', 'Project', 'Quiz', 'Assignment'])
@@ -118,7 +124,7 @@ class AssessmentFactory(DjangoModelFactory):
 class AssessmentGradeFactory(DjangoModelFactory):
     """Factory for creating AssessmentGrade instances"""
     class Meta:
-        model = 'edupace_app.AssessmentGrade'
+        model = AssessmentGrade
     
     assessment = factory.SubFactory(AssessmentFactory)
     student = factory.SubFactory(StudentFactory)
@@ -128,7 +134,7 @@ class AssessmentGradeFactory(DjangoModelFactory):
 class AssessmentToLOFactory(DjangoModelFactory):
     """Factory for creating AssessmentToLO instances"""
     class Meta:
-        model = 'edupace_app.AssessmentToLO'
+        model = AssessmentToLO
     
     assessment = factory.SubFactory(AssessmentFactory)
     learning_outcome = factory.SubFactory(LearningOutcomeFactory)
@@ -138,7 +144,7 @@ class AssessmentToLOFactory(DjangoModelFactory):
 class LOToPOFactory(DjangoModelFactory):
     """Factory for creating LOToPO instances"""
     class Meta:
-        model = 'edupace_app.LOToPO'
+        model = LOToPO
     
     learning_outcome = factory.SubFactory(LearningOutcomeFactory)
     program_outcome = factory.SubFactory(ProgramOutcomeFactory)
