@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
+from django.urls import reverse
 
 
 class SmokeTests(TestCase):
@@ -22,7 +23,14 @@ class SmokeTests(TestCase):
         """
         The configured LOGIN_URL should exist and respond.
         """
-        login_url = getattr(settings, "LOGIN_URL", "/accounts/login/")
+        login_url_setting = getattr(settings, "LOGIN_URL", "/accounts/login/")
+        # If LOGIN_URL is a named URL, resolve it; otherwise use as-is
+        try:
+            login_url = reverse(login_url_setting)
+        except Exception:
+            # If reverse fails, assume it's a direct path
+            login_url = login_url_setting
+        
         response = self.client.get(login_url)
         self.assertTrue(
             response.status_code in (200, 302),
