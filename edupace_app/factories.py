@@ -118,7 +118,7 @@ class AssessmentFactory(DjangoModelFactory):
     
     course = factory.SubFactory(CourseFactory)
     name = factory.Iterator(['Midterm', 'Final', 'Project', 'Quiz', 'Assignment'])
-    weight_in_course = factory.Faker('random_int', min=10, max=50) / 100.0
+    weight_in_course = factory.Faker("pyfloat", min_value=0.10, max_value=0.50, right_digits=2)
 
 
 class AssessmentGradeFactory(DjangoModelFactory):
@@ -138,7 +138,7 @@ class AssessmentToLOFactory(DjangoModelFactory):
     
     assessment = factory.SubFactory(AssessmentFactory)
     learning_outcome = factory.SubFactory(LearningOutcomeFactory)
-    weight = factory.Faker('random_int', min=1, max=10) / 10.0
+    weight = factory.Faker("pyfloat", min_value=0.1, max_value=1.0, right_digits=2)
 
 
 class LOToPOFactory(DjangoModelFactory):
@@ -148,5 +148,5 @@ class LOToPOFactory(DjangoModelFactory):
     
     learning_outcome = factory.SubFactory(LearningOutcomeFactory)
     program_outcome = factory.SubFactory(ProgramOutcomeFactory)
-    weight = factory.Faker('random_int', min=1, max=10) / 10.0
+    weight = factory.Faker("pyfloat", min_value=0.1, max_value=1.0, right_digits=2)
 
