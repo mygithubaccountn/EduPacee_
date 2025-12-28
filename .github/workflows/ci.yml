@@ -7,9 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}
 
     steps:
       - name: Checkout code
@@ -42,7 +39,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
           if [ -f manage.py ]; then
-            python manage.py check --deploy || python manage.py check
+            python manage.py check || exit 1
           else
             echo "Error: manage.py not found at repo root"
             exit 1
@@ -53,7 +50,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
           if [ -f manage.py ]; then
-            python manage.py migrate --run-syncdb || python manage.py migrate
+            python manage.py migrate --noinput || exit 1
           else
             echo "Error: manage.py not found"
             exit 1
@@ -64,7 +61,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: Eduu_Pace.settings
         run: |
           if [ -f manage.py ]; then
-            python manage.py test edupace_app --verbosity=2 || python manage.py test --verbosity=2
+            python manage.py test edupace_app --verbosity=2 || exit 1
           else
             echo "Error: manage.py not found"
             exit 1
