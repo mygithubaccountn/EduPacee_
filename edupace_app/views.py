@@ -338,6 +338,7 @@ def add_grade(request, course_id):
             grade, created = Grade.objects.update_or_create(
                 student=form.cleaned_data['student'],
                 course=course,
+                assessment_type=form.cleaned_data['assessment_type'],
                 semester=form.cleaned_data.get('semester', ''),
                 academic_year=form.cleaned_data.get('academic_year', ''),
                 defaults={
@@ -381,12 +382,13 @@ def upload_grades(request, course_id):
         form = GradeUploadForm(request.POST, request.FILES, teacher=teacher)
         if form.is_valid():
             excel_file = form.cleaned_data['excel_file']
+            assessment_type = form.cleaned_data.get('assessment_type', 'final')
             semester = form.cleaned_data.get('semester', '')
             academic_year = form.cleaned_data.get('academic_year', '')
             
             # Process Excel file
             success, message, errors = process_excel_grades(
-                excel_file, course, semester, academic_year, request.user
+                excel_file, course, assessment_type, semester, academic_year, request.user
             )
             
             if success:

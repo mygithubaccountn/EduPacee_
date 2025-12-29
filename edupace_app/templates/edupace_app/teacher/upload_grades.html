@@ -44,6 +44,15 @@
                         </div>
                         
                         <div class="mb-3">
+                            <label for="{{ form.assessment_type.id_for_label }}" class="form-label">Assessment Type</label>
+                            {{ form.assessment_type }}
+                            {% if form.assessment_type.errors %}
+                                <div class="text-danger small">{{ form.assessment_type.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">{{ form.assessment_type.help_text }}</small>
+                        </div>
+                        
+                        <div class="mb-3">
                             <label for="{{ form.semester.id_for_label }}" class="form-label">Semester (Optional)</label>
                             {{ form.semester }}
                             {% if form.semester.errors %}

@@ -101,6 +101,12 @@ class GradeUploadForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'}),
         empty_label='Select a course'
     )
+    assessment_type = forms.ChoiceField(
+        choices=Grade.ASSESSMENT_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        initial='final',
+        help_text='Select the type of assessment for these grades'
+    )
     semester = forms.CharField(
         max_length=20,
         required=False,
@@ -129,10 +135,11 @@ class GradeForm(forms.ModelForm):
     """Form for manually entering grades"""
     class Meta:
         model = Grade
-        fields = ['student', 'course', 'grade', 'percentage', 'semester', 'academic_year']
+        fields = ['student', 'course', 'assessment_type', 'grade', 'percentage', 'semester', 'academic_year']
         widgets = {
             'student': forms.Select(attrs={'class': 'form-select'}),
             'course': forms.Select(attrs={'class': 'form-select'}),
+            'assessment_type': forms.Select(attrs={'class': 'form-select'}),
             'grade': forms.Select(attrs={'class': 'form-select'}),
             'percentage': forms.NumberInput(attrs={
                 'class': 'form-control',
