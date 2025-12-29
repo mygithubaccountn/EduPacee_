@@ -262,3 +262,4 @@ This project is for educational purposes.
 
 For issues or questions, please check the code comments or Django documentation.
 
+
