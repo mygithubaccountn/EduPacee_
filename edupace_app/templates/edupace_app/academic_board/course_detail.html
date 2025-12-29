@@ -227,6 +227,7 @@
                                 <tr>
                                     <th>Student ID</th>
                                     <th>Student Name</th>
+                                    <th>Assessment Type</th>
                                     <th>Grade</th>
                                     <th>Percentage</th>
                                     <th>Semester</th>
@@ -238,6 +239,7 @@
                                 <tr>
                                     <td>{{ grade.student.student_id }}</td>
                                     <td>{{ grade.student.user.get_full_name|default:grade.student.user.username }}</td>
+                                    <td><span class="badge bg-info">{{ grade.get_assessment_type_display }}</span></td>
                                     <td><span class="badge bg-success">{{ grade.grade }}</span></td>
                                     <td>{{ grade.percentage|default:"-" }}</td>
                                     <td>{{ grade.semester|default:"-" }}</td>

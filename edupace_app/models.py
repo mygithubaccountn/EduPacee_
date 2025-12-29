@@ -127,8 +127,21 @@ class Grade(models.Model):
         ('F', 'F'),
     ]
     
+    ASSESSMENT_TYPE_CHOICES = [
+        ('midterm', 'Midterm'),
+        ('assignment', 'Assignment'),
+        ('project', 'Project'),
+        ('final', 'Final'),
+    ]
+    
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='grades')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='grades')
+    assessment_type = models.CharField(
+        max_length=20,
+        choices=ASSESSMENT_TYPE_CHOICES,
+        default='final',
+        help_text="Type of assessment (Midterm, Assignment, Project, Final)"
+    )
     grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
     percentage = models.DecimalField(
         max_digits=5,
@@ -145,13 +158,13 @@ class Grade(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        unique_together = ['student', 'course', 'semester', 'academic_year']
-        ordering = ['-academic_year', '-semester', 'course']
+        unique_together = ['student', 'course', 'assessment_type', 'semester', 'academic_year']
+        ordering = ['-academic_year', '-semester', 'course', 'assessment_type']
         verbose_name = "Grade"
         verbose_name_plural = "Grades"
     
     def __str__(self):
-        return f"{self.student.student_id} - {self.course.code} - {self.grade}"
+        return f"{self.student.student_id} - {self.course.code} - {self.get_assessment_type_display()} - {self.grade}"
 
 
 class Assessment(models.Model):

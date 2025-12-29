@@ -148,7 +148,7 @@ def excel_to_pdf(excel_file_path, output_pdf_path):
         return False
 
 
-def process_excel_grades(excel_file, course, semester='', academic_year='', created_by=None):
+def process_excel_grades(excel_file, course, assessment_type='final', semester='', academic_year='', created_by=None):
     """
     Process Excel file and create Grade objects
     Expected Excel format:
@@ -210,6 +210,7 @@ def process_excel_grades(excel_file, course, semester='', academic_year='', crea
                 grade, created = Grade.objects.update_or_create(
                     student=student,
                     course=course,
+                    assessment_type=assessment_type,
                     semester=semester,
                     academic_year=academic_year,
                     defaults={

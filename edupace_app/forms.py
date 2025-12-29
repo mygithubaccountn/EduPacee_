@@ -1,5 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from .models import (
     Course, Teacher, Student, AcademicBoard,
     ProgramOutcome, LearningOutcome, Grade,
@@ -99,6 +101,12 @@ class GradeUploadForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'}),
         empty_label='Select a course'
     )
+    assessment_type = forms.ChoiceField(
+        choices=Grade.ASSESSMENT_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        initial='final',
+        help_text='Select the type of assessment for these grades'
+    )
     semester = forms.CharField(
         max_length=20,
         required=False,
@@ -127,10 +135,11 @@ class GradeForm(forms.ModelForm):
     """Form for manually entering grades"""
     class Meta:
         model = Grade
-        fields = ['student', 'course', 'grade', 'percentage', 'semester', 'academic_year']
+        fields = ['student', 'course', 'assessment_type', 'grade', 'percentage', 'semester', 'academic_year']
         widgets = {
             'student': forms.Select(attrs={'class': 'form-select'}),
             'course': forms.Select(attrs={'class': 'form-select'}),
+            'assessment_type': forms.Select(attrs={'class': 'form-select'}),
             'grade': forms.Select(attrs={'class': 'form-select'}),
             'percentage': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -165,6 +174,141 @@ class EnrollStudentToCourseForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'}),
         empty_label='Select a student'
     )
+
+
+class CreateStudentForm(forms.Form):
+    """Form for creating a new student"""
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    first_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text='Password must be at least 8 characters long.'
+    )
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Confirm Password'
+    )
+    student_id = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Unique student ID (e.g., STU001)'
+    )
+    enrollment_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+    program = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Program name (e.g., Computer Science)'
+    )
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise ValidationError('A user with this username already exists.')
+        return username
+    
+    def clean_student_id(self):
+        student_id = self.cleaned_data.get('student_id')
+        if Student.objects.filter(student_id=student_id).exists():
+            raise ValidationError('A student with this student ID already exists.')
+        return student_id
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        
+        if password and password_confirm:
+            if password != password_confirm:
+                raise ValidationError("Passwords don't match.")
+            if len(password) < 8:
+                raise ValidationError("Password must be at least 8 characters long.")
+        
+        return cleaned_data
+
+
+class CreateTeacherForm(forms.Form):
+    """Form for creating a new teacher"""
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    first_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text='Password must be at least 8 characters long.'
+    )
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Confirm Password'
+    )
+    employee_id = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Unique employee ID (e.g., TCH001)'
+    )
+    department = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text='Department name (e.g., Computer Science)'
+    )
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise ValidationError('A user with this username already exists.')
+        return username
+    
+    def clean_employee_id(self):
+        employee_id = self.cleaned_data.get('employee_id')
+        if Teacher.objects.filter(employee_id=employee_id).exists():
+            raise ValidationError('A teacher with this employee ID already exists.')
+        return employee_id
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        
+        if password and password_confirm:
+            if password != password_confirm:
+                raise ValidationError("Passwords don't match.")
+            if len(password) < 8:
+                raise ValidationError("Password must be at least 8 characters long.")
+        
+        return cleaned_data
 
 
 class AssessmentForm(forms.ModelForm):
