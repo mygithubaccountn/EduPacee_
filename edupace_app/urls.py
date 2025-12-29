@@ -33,6 +33,8 @@ urlpatterns = [
     
     # Department Head (Academic Board) URLs
     path('academic-board/dashboard/', views.academic_board_dashboard, name='academic_board_dashboard'),
+    path('academic-board/student/create/', views.create_student, name='create_student'),
+    path('academic-board/teacher/create/', views.create_teacher, name='create_teacher'),
     path('academic-board/course/create/', views.create_course, name='create_course'),
     path('academic-board/course/<int:course_id>/', views.academic_board_course_detail, name='academic_board_course_detail'),
     path('academic-board/course/<int:course_id>/edit/', views.edit_course, name='edit_course'),

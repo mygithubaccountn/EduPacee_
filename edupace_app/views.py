@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -22,7 +23,7 @@ from .forms import (
     RoleLoginForm, CourseForm, ProgramOutcomeForm,
     LearningOutcomeForm, GradeUploadForm, GradeForm, AssignTeacherToCourseForm,
     AssessmentForm, AssessmentGradeForm, AssessmentToLOForm, LOToPOForm,
-    EnrollStudentToCourseForm
+    EnrollStudentToCourseForm, CreateStudentForm, CreateTeacherForm
 )
 from .utils import (
     get_user_role, get_user_profile, role_required,
@@ -796,6 +797,69 @@ def assign_teacher_to_course(request, course_id):
         'course': course,
     }
     return render(request, 'edupace_app/academic_board/assign_teacher.html', context)
+
+
+@login_required
+@role_required('academic_board')
+def create_student(request):
+    """Create a new student in the system"""
+    if request.method == 'POST':
+        form = CreateStudentForm(request.POST)
+        if form.is_valid():
+            # Create User
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data.get('first_name', ''),
+                last_name=form.cleaned_data.get('last_name', '')
+            )
+            
+            # Create Student profile
+            student = Student.objects.create(
+                user=user,
+                student_id=form.cleaned_data['student_id'],
+                enrollment_date=form.cleaned_data['enrollment_date'],
+                program=form.cleaned_data.get('program', '')
+            )
+            
+            messages.success(request, f'Student {student.student_id} ({user.get_full_name() or user.username}) created successfully.')
+            return redirect('edupace_app:academic_board_dashboard')
+    else:
+        form = CreateStudentForm()
+    
+    return render(request, 'edupace_app/academic_board/create_student.html', {'form': form})
+
+
+@login_required
+@role_required('academic_board')
+def create_teacher(request):
+    """Create a new teacher in the system"""
+    if request.method == 'POST':
+        form = CreateTeacherForm(request.POST)
+        if form.is_valid():
+            # Create User
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data.get('first_name', ''),
+                last_name=form.cleaned_data.get('last_name', '')
+            )
+            
+            # Create Teacher profile
+            teacher = Teacher.objects.create(
+                user=user,
+                employee_id=form.cleaned_data['employee_id'],
+                department=form.cleaned_data.get('department', '')
+            )
+            
+            messages.success(request, f'Teacher {teacher.employee_id} ({user.get_full_name() or user.username}) created successfully.')
+            return redirect('edupace_app:academic_board_dashboard')
+    else:
+        form = CreateTeacherForm()
+    
+    return render(request, 'edupace_app/academic_board/create_teacher.html', {'form': form})
 
 
 @login_required
